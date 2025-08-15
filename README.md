@@ -16,7 +16,9 @@ Exports the results into a timestamped CSV file.
 Works cross-platform (Windows, macOS, Linux).
 
 PROJECT STRUCTURE
-resume-screener/
+<img width="1536" height="1024" alt="ChatGPT Image 15 авг  2025 г , 17_29_05" src="https://github.com/user-attachments/assets/c347933e-9525-40fa-af43-1b36eb39a85d" />
+
+
 │
 ├── search_by_skill.py # Main script
 ├── requirements.txt # Project dependencies
