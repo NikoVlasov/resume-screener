@@ -4,7 +4,7 @@ import csv
 from datetime import datetime
 
 # ======================
-# Настройки
+# Settings
 # ======================
 BASE_URL = "http://127.0.0.1:8000/resumes"
 HEADERS = {
@@ -19,31 +19,31 @@ skills_to_search = ["Python", "SQL", "Power BI"]
 keywords_to_search = ["data analysis", "machine learning", "reporting"]
 
 # ======================
-# Функции
+# Functions
 # ======================
 
 def fetch_all_resumes():
-    """Запрашивает все резюме с сервера через API."""
+    """Fetches all resumes from the server via API."""
     try:
         response = requests.get(BASE_URL, headers=HEADERS)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
-        print(f"❌ Ошибка запроса: {e}")
+        print(f"❌ Request error: {e}")
         return []
 
 def collect_resumes(skills, keywords):
-    """Собирает резюме с навыками и ключевыми словами."""
+    """Collects resumes that match given skills and keywords."""
     combined = defaultdict(lambda: {"skills": set(), "keywords": set()})
     resumes = fetch_all_resumes()
 
     for resume in resumes:
-        filename = resume.get("filename") or resume.get("id", "Без имени файла")
+        filename = resume.get("filename") or resume.get("id", "No file name")
         parsed_data = resume.get("parsed_data", {})
         parsed_skills = parsed_data.get("skills", [])
         text = parsed_data.get("text", "").lower()
 
-        # Нормализация навыков
+        # Normalize skills
         normalized_skills = []
         for s in parsed_skills:
             if isinstance(s, str):
@@ -53,12 +53,12 @@ def collect_resumes(skills, keywords):
                 if s.get("matched_alias"):
                     normalized_skills.append(s.get("matched_alias").lower())
 
-        # Проверка навыков
+        # Skills check
         for skill in skills:
             if skill.lower() in normalized_skills:
                 combined[filename]["skills"].add(skill)
 
-        # Проверка ключевых слов
+        # Keywords check
         for keyword in keywords:
             if keyword.lower() in text:
                 combined[filename]["keywords"].add(keyword)
@@ -66,21 +66,21 @@ def collect_resumes(skills, keywords):
     return combined
 
 def print_combined_resumes(combined_resumes):
-    """Вывод найденных резюме."""
+    """Prints the found resumes."""
     if not combined_resumes:
-        print("⚠ Резюме с такими навыками или ключевыми словами не найдены.\n")
+        print("⚠ No resumes found with these skills or keywords.\n")
         return
 
-    print("\n📄 Найденные резюме:\n")
+    print("\n📄 Found resumes:\n")
     for filename, data in combined_resumes.items():
-        skills_list = ", ".join(sorted(data["skills"])) or "Нет"
-        keywords_list = ", ".join(sorted(data["keywords"])) or "Нет"
+        skills_list = ", ".join(sorted(data["skills"])) or "None"
+        keywords_list = ", ".join(sorted(data["keywords"])) or "None"
         print(f"✅ {filename}:")
-        print(f"   - Навыки: {skills_list}")
-        print(f"   - Ключевые слова: {keywords_list}\n")
+        print(f"   - Skills: {skills_list}")
+        print(f"   - Keywords: {keywords_list}\n")
 
 def export_to_csv(combined_resumes, filename=None):
-    """Экспорт результатов в CSV."""
+    """Exports results to CSV."""
     if not filename:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"resumes_{timestamp}.csv"
@@ -95,19 +95,19 @@ def export_to_csv(combined_resumes, filename=None):
                 ", ".join(sorted(data["keywords"]))
             ])
 
-    print(f"\n💾 Результаты экспортированы в файл: {filename}")
-    return filename  # возвращаем имя файла для последующего просмотра
+    print(f"\n💾 Results exported to file: {filename}")
+    return filename  # returns filename for later viewing
 
 def show_csv(filename):
-    """Выводит содержимое CSV в консоль."""
-    print(f"\n📊 Содержимое файла {filename}:\n")
+    """Displays CSV content in the console."""
+    print(f"\n📊 Contents of {filename}:\n")
     with open(filename, newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             print(row)
 
 # ======================
-# Основной запуск
+# Main execution
 # ======================
 if __name__ == "__main__":
     combined_resumes = collect_resumes(skills_to_search, keywords_to_search)
